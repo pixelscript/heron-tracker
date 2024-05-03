@@ -58,9 +58,6 @@ def fetch_image():
 while True:
     image = fetch_image()
     if image is not None:
-        # cv2.imshow('Detection', image)
-        # if cv2.waitKey(1) == ord('q'):  # Exit loop if 'q' is pressed
-        #     break     
         # Predictions from the model
         results = model(image, conf=0.8, device='mps', verbose=True)
         

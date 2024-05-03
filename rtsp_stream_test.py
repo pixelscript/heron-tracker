@@ -33,9 +33,9 @@ def call_api(image):
 
 # Process each result
 for r in results:
-    heron_class = 'heron'
+    detection_class = 'heron'
     # Check if 'heron' is detected
-    if heron_class == r.names[0] and r.boxes.conf.numel():
+    if detection_class == r.names[0] and r.boxes.conf.numel():
         heron_count += 1
         if heron_count >= threshold:
             frame = r.plot()  # Get the frame with bounding boxes drawn
