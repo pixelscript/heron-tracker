@@ -23,6 +23,15 @@ imageEndpoint = config('IMAGE_ENDPOINT')
 # class to detect
 detection_class = 'heron'
 
+def open_browser():
+    playwright = sync_playwright().start()
+    browser = playwright.chromium.launch()
+    page = browser.new_page()
+    page.set_viewport_size({"width": 1280, "height": 720})
+    return browser, page
+
+[browser, page] = open_browser()
+
 # Function to encode image to base64
 def img_to_base64(img):
     _, buffer = cv2.imencode('.png', img)
@@ -36,24 +45,18 @@ def call_api(image):
 
 # Function to fetch and return image
 def fetch_image():
-    # use playwright to navigate to imageEndpoint and take a screenshot of the image object
-    with sync_playwright() as p:
-        # try catch around the browser object
-        try:
-            browser = p.chromium.launch()
-            page = browser.new_page()
-            page.set_viewport_size({"width": 1280, "height": 720})
-            page.goto(imageEndpoint)
-            image = page.locator("img").screenshot()
-            browser.close()
-            # Convert the image buffer to a numpy array
-            image = cv2.imdecode(np.frombuffer(image, np.uint8), cv2.IMREAD_COLOR)
-            # resize image to 640x360
-            image = cv2.resize(image, (640, 360))
-            return image
-        except Exception as e:
-            print(f"Error: {e}")
-            return None
+    # try catch around the browser object
+    try:
+        page.goto(imageEndpoint)
+        image = page.locator("img").screenshot()
+        # Convert the image buffer to a numpy array
+        image = cv2.imdecode(np.frombuffer(image, np.uint8), cv2.IMREAD_COLOR)
+        # resize image to 640x360
+        image = cv2.resize(image, (640, 360))
+        return image
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
 
 while True:
     image = fetch_image()
@@ -75,3 +78,5 @@ while True:
     
     # Wait for 5 seconds before making the next request
     time.sleep(5)
+
+browser.close()
