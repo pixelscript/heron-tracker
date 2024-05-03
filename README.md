@@ -16,11 +16,18 @@ Set up .env
 
 ```
 ENDPOINT=<endpoint to call with image data>
+STREAM_URL=<url for RTSP stream>
 IMAGE_ENDPOINT=<url to fetch image>
 ```
 
-Run script
+Run polling script
 
 ```
 python periodically_test.py
+```
+
+Run streaming script
+
+```
+python rtsp_stream_test.py
 ```
