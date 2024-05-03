@@ -7,18 +7,21 @@ import time
 import numpy as np
 from requests.auth import HTTPBasicAuth
 from playwright.sync_api import sync_playwright
-# Load the pretrained model
+
+# Load the model
 model = YOLO('best.pt')
 
-# Times seen
+# Initialize counter
 count = 0
-threshold = 2
+# Threshold of consecutive detections
+threshold = 5
+
 # Define the alarm endpoint
 endpoint = config('ENDPOINT')
 # Define the image endpoint
 imageEndpoint = config('IMAGE_ENDPOINT')
 # class to detect
-heron_class = 'heron'
+detection_class = 'heron'
 
 # Function to encode image to base64
 def img_to_base64(img):
@@ -45,7 +48,7 @@ def fetch_image():
             browser.close()
             # Convert the image buffer to a numpy array
             image = cv2.imdecode(np.frombuffer(image, np.uint8), cv2.IMREAD_COLOR)
-            # resixe image to 640x360
+            # resize image to 640x360
             image = cv2.resize(image, (640, 360))
             return image
         except Exception as e:
@@ -64,7 +67,7 @@ while True:
         # Process each result
         for r in results:
             # Check if 'heron' is detected
-            if heron_class == r.names[0] and r.boxes.conf.numel():
+            if detection_class == r.names[0] and r.boxes.conf.numel():
                 count += 1
 
         # If heron is detected multiple times, make an API call

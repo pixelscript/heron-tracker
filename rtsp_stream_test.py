@@ -4,12 +4,11 @@ import cv2
 import base64
 from decouple import config
 
-# Load the pretrained model
+# Load the model
 model = YOLO('best.pt')
 
 # Define the RTSP stream
 stream_url = config('STREAM_URL')
-print(stream_url)
 # Define the endpoint
 endpoint = config('ENDPOINT')
 # Predictions from the model
@@ -17,7 +16,8 @@ results = model(stream_url, conf=0.8, device='mps', stream=True, verbose=True)
 
 # Initialize counter
 heron_count = 0
-N = 5  # Threshold of consecutive detections
+# Threshold of consecutive detections
+threshold = 5
 
 # Function to encode image to base64
 def img_to_base64(img):
@@ -27,6 +27,7 @@ def img_to_base64(img):
 
 # Function to make an API call
 def call_api(image):
+    image = cv2.resize(image, (640, 360))
     image_data = img_to_base64(image)
     requests.post(endpoint, json={'image': image_data, 'message': 'Heron detected multiple times'})
 
@@ -36,7 +37,7 @@ for r in results:
     # Check if 'heron' is detected
     if heron_class == r.names[0] and r.boxes.conf.numel():
         heron_count += 1
-        if heron_count >= N:
+        if heron_count >= threshold:
             frame = r.plot()  # Get the frame with bounding boxes drawn
             call_api(frame)
             heron_count = 0  # Optionally reset the counter after the API call
