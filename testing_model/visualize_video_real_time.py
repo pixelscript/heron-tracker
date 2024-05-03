@@ -5,10 +5,10 @@ import cv2
 model = YOLO('../best.pt')
 
 # test video
-stream_url = './samples/false-positive-convert.mp4'
+video = './samples/long.mp4'
 
 # Predictions from the model
-results = model(stream_url, conf=0.8, device='mps', stream=True, verbose=True)
+results = model(video, conf=0.8, device='mps', stream=True, verbose=True)
 
 # Process each result
 for r in results:
