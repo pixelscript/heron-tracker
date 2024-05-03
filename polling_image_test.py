@@ -3,10 +3,7 @@ import requests
 import cv2
 import base64
 from decouple import config
-import time
 import numpy as np
-from requests.auth import HTTPBasicAuth
-from playwright.sync_api import sync_playwright
 
 # Load the model
 model = YOLO('best.pt')
@@ -23,14 +20,6 @@ imageEndpoint = config('IMAGE_ENDPOINT')
 # class to detect
 detection_class = 'heron'
 
-def open_browser():
-    playwright = sync_playwright().start()
-    browser = playwright.chromium.launch()
-    page = browser.new_page()
-    page.set_viewport_size({"width": 1280, "height": 720})
-    return browser, page
-
-[browser, page] = open_browser()
 
 # Function to encode image to base64
 def img_to_base64(img):
@@ -47,12 +36,8 @@ def call_api(image):
 def fetch_image():
     # try catch around the browser object
     try:
-        page.goto(imageEndpoint)
-        image = page.locator("img").screenshot()
-        # Convert the image buffer to a numpy array
-        image = cv2.imdecode(np.frombuffer(image, np.uint8), cv2.IMREAD_COLOR)
-        # resize image to 640x360
-        image = cv2.resize(image, (640, 360))
+        image = requests.get(imageEndpoint)
+        image = cv2.imdecode(np.frombuffer(image.content, np.uint8), cv2.IMREAD_COLOR)
         return image
     except Exception as e:
         print(f"Error: {e}")
@@ -75,8 +60,3 @@ while True:
             frame = r.plot()
             call_api(frame)
             count = 0
-    
-    # Wait for 5 seconds before making the next request
-    time.sleep(5)
-
-browser.close()
