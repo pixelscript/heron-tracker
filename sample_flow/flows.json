@@ -157,7 +157,7 @@
         "method": "POST",
         "ret": "obj",
         "paytoqs": "body",
-        "url": "https://ntfy.sh/heron_alert",
+        "url": "https://ntfy.sh/heron_alarm",
         "tls": "",
         "persist": false,
         "proxy": "",
